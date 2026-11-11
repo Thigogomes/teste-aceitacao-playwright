@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lista de compras</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 480px; margin: 2rem auto; padding: 0 1rem; }
+    form { display: flex; gap: .5rem; }
+    input[type=text] { flex: 1; padding: .5rem; }
+    button { padding: .5rem .8rem; cursor: pointer; }
+    ul { list-style: none; padding: 0; }
+    li { display: flex; align-items: center; gap: .5rem; padding: .4rem 0; border-bottom: 1px solid #ddd; }
+    li.done span { text-decoration: line-through; color: #777; }
+    li span { flex: 1; }
+    #erro { color: #b00020; margin: .5rem 0; }
+    #resumo, #vazio { color: #555; }
+  </style>
+</head>
+<body>
+  <h1>Lista de compras</h1>
+  <form id="form">
+    <label for="novo">Novo item</label>
+    <input type="text" id="novo" autocomplete="off">
+    <button type="submit">Adicionar</button>
+  </form>
+  <div id="erro" role="alert" hidden></div>
+  <ul id="lista"></ul>
+  <p id="vazio">Nenhum item na lista.</p>
+  <p id="resumo"></p>
+
+  <script>
+    const KEY = 'lista-de-compras';
+    let itens = [];
+    try { itens = JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { itens = []; }
+
+    const $ = (id) => document.getElementById(id);
+    const salvar = () => localStorage.setItem(KEY, JSON.stringify(itens));
+
+    function render() {
+      const ul = $('lista');
+      ul.innerHTML = '';
+      itens.forEach((item, i) => {
+        const li = document.createElement('li');
+        if (item.feito) li.className = 'done';
+
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.checked = item.feito;
+        cb.setAttribute('aria-label', 'Concluir ' + item.nome);
+        cb.addEventListener('change', () => { itens[i].feito = cb.checked; salvar(); render(); });
+
+        const nome = document.createElement('span');
+        nome.textContent = item.nome;
+
+        const rm = document.createElement('button');
+        rm.type = 'button';
+        rm.textContent = 'Remover';
+        rm.setAttribute('aria-label', 'Remover ' + item.nome);
+        rm.addEventListener('click', () => { itens.splice(i, 1); salvar(); render(); });
+
+        li.append(cb, nome, rm);
+        ul.appendChild(li);
+      });
+
+      const total = itens.length;
+      const feitos = itens.filter((x) => x.feito).length;
+      $('vazio').hidden = total > 0;
+      $('resumo').textContent =
+        total + (total === 1 ? ' item' : ' itens') + ' · ' +
+        feitos + (feitos === 1 ? ' concluído' : ' concluídos');
+    }
+
+    $('form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const nome = $('novo').value.trim();
+      if (!nome) {
+        $('erro').textContent = 'Digite um item antes de adicionar.';
+        $('erro').hidden = false;
+        return;
+      }
+      $('erro').hidden = true;
+      itens.push({ nome, feito: false });
+      salvar();
+      $('novo').value = '';
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>
