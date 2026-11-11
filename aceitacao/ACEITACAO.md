@@ -1,6 +1,6 @@
 # ACEITACAO.md
 
-**Integrantes:** _Nome 1_ e _Nome 2_
+**Integrantes:** Felipe Gabriel de Carvalho e Thiago Henrique Gomes Feliciano
 **App:** Lista de compras (HTML + CSS + JS puro, dados no `localStorage`)
 
 ## Como rodar (do zero)
@@ -24,10 +24,11 @@ No Linux/WSL, se faltar biblioteca: `npx playwright install --with-deps chromium
 
 ## Anti-teste (quebrei o app de propósito)
 
-| Teste | O que quebrei | Resultado | Depois de desfazer |
+| Teste | O que quebrei | Resultado com o app quebrado | Depois de desfazer |
 |---|---|---|---|
-| C1 | _ex.: comentei `itens.push(...)` em `index.html`_ | _vermelho_ | _verde_ |
-| C2 | _ex.: comentei o `if (!nome) {...}` em `index.html`_ | _vermelho_ | _verde_ |
-| C3 | _ex.: comentei `salvar()` no `change` do checkbox_ | _vermelho_ | _verde_ |
+| C1 · `lista-de-compras.spec.js:9` | Comentei `itens.push({ nome, feito: false });` em `index.html` (linha 83) | Vermelho: `toHaveCount(1)` esperava 1 e recebeu 0 (o C3 também falhou, pois depende de adicionar o item) | Verde |
+| C2 · `lista-de-compras.spec.js:19` | Comentei o bloco `if (!nome) { ... return; }` em `index.html` (linhas 77 a 81) | Vermelho: `getByRole('alert')` não foi encontrado, então o aviso não apareceu (C1 e C3 continuaram verdes) | Verde |
+| C3 · `lista-de-compras.spec.js:29` | Comentei `salvar();` no `change` do checkbox em `index.html` (linha 51) | Vermelho: `toBeChecked()` esperava `checked` e recebeu `unchecked` depois do `reload` (C1 e C2 continuaram verdes) | Verde |
 
+Depois de cada quebra, desfiz a alteração e rodei `npx playwright test` de novo: os 3 testes voltaram a passar (`3 passed`).
 > Preencham esta tabela depois de rodar de verdade (e guardem um print do vermelho).
