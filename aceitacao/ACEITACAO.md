@@ -3,7 +3,7 @@
 **Integrantes:** Felipe Gabriel de Carvalho e Thiago Henrique Gomes Feliciano
 **App:** Lista de compras (HTML + CSS + JS puro, dados no `localStorage`)
 
-## Como rodar (do zero)
+## Como rodar
 
 ```bash
 npm i
